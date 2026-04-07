@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>哪吒 - 视频封面</title>
+    <title>视频封面排版</title>
     <style>
         /* 延续极简 Apple-style UI */
         :root {
@@ -26,7 +26,7 @@
 
         /* 左侧滚动控制区 */
         .sidebar {
-            width: 420px;
+            width: 440px; 
             background: var(--card-bg);
             padding: 24px;
             display: flex;
@@ -44,25 +44,47 @@
             border-radius: var(--border-radius);
             border: 1px solid #e5e5e7;
         }
+        
+        .sub-section {
+            background: #fbfbfd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #f0f0f0;
+        }
 
         h2 { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        h3 { font-size: 13px; color: var(--text-main); margin-bottom: 10px; border-bottom: 1px solid #e5e5e7; padding-bottom: 6px;}
 
         /* 输入与滑块样式 */
         .control-item { margin-bottom: 12px; }
-        .control-item label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 500; }
+        .control-item label { display: block; font-size: 12px; margin-bottom: 6px; font-weight: 500; color: #555;}
         
-        input[type="text"], select {
+        .row-controls { display: flex; gap: 8px; align-items: center; }
+        .row-controls > div { flex: 1; }
+
+        input[type="text"], select, input[type="file"] {
             width: 100%;
-            padding: 10px;
+            padding: 8px 10px;
             border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 13px;
             outline: none;
+            background: #fff;
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 34px;
+            padding: 2px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            cursor: pointer;
         }
 
         .slider-group { display: flex; align-items: center; gap: 10px; }
         input[type="range"] { flex: 1; accent-color: var(--accent); }
-        .val-display { font-size: 12px; color: var(--text-muted); width: 40px; text-align: right; }
+        .val-display { font-size: 12px; color: var(--text-muted); width: 35px; text-align: right; }
 
         /* 按钮 */
         button {
@@ -73,11 +95,14 @@
             background: var(--accent);
             color: white;
             font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
             transition: 0.2s;
         }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         button.secondary { background: #e8e8ed; color: var(--text-main); margin-top: 8px; }
+        button.small { padding: 6px; font-size: 12px; margin-top: 0; background: #e8e8ed; color: var(--text-main); font-weight: normal;}
+        button.small:hover { background: #d2d2d7; }
         
         .btn-group { display: flex; gap: 8px; margin-top: 8px; }
         .btn-group button { flex: 1; margin-top: 0; font-size: 13px; padding: 8px;}
@@ -108,13 +133,12 @@
 <body>
 
     <div class="sidebar">
-        <h1 style="font-size: 20px; margin-bottom: 4px;">视频截取</h1>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">视频截取</p>
+        <h1 style="font-size: 20px; margin-bottom: 4px;">视频排版</h1>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">视频标题排版</p>
 
         <div class="section">
             <h2>1. 视频进度微调</h2>
             <div class="control-item">
-                <label>选择视频</label>
                 <input type="file" id="videoUpload" accept="video/*">
                 <video id="sourceVideo" controls></video>
                 <div class="btn-group">
@@ -125,57 +149,118 @@
         </div>
 
         <div class="section">
-            <h2>2. 画面截取</h2>
+            <h2>2. 画面截取与导出</h2>
             <button id="captureBtn">截取当前视频帧</button>
-            <button id="downloadFrameBtn" class="secondary">⬇️ 下载截取原图</button>
+            <button id="downloadFrameBtn" class="secondary">⬇️ 仅下载截取原图</button>
+            <button id="exportBtn" style="background: #1d1d1f; margin-top: 8px;">💾 保存 900x1600</button>
             
-            <div class="control-item" style="margin-top:16px;">
-                <label>海报画面缩放 (针对截取帧)</label>
-                <div class="slider-group">
-                    <input type="range" id="vScale" min="0.5" max="3" step="0.01" value="1">
-                    <span class="val-display" id="vScaleVal">1.0</span>
+            <div class="control-item" style="margin-top:16px; border-top: 1px solid #e5e5e7; padding-top: 16px;">
+                <label style="color:var(--accent); font-weight:600; margin-bottom:10px;">调整截取画面</label>
+                <div class="control-item">
+                    <label>画面缩放</label>
+                    <div class="slider-group">
+                        <input type="range" id="vScale" min="0.5" max="3" step="0.01" value="1">
+                        <span class="val-display" id="vScaleVal">1.0</span>
+                    </div>
                 </div>
+                <div class="control-item">
+                    <label>水平平移 (X)</label>
+                    <input type="range" id="vX" min="-1000" max="1000" value="0" style="width:100%">
+                </div>
+                <div class="control-item">
+                    <label>垂直平移 (Y)</label>
+                    <input type="range" id="vY" min="-1000" max="1000" value="0" style="width:100%">
+                </div>
+                <button class="small" id="vCenterBtn">重置画面位置</button>
             </div>
         </div>
 
         <div class="section">
-            <h2>3. 文字模版设置</h2>
+            <h2>3. 文字排版设置</h2>
+            
             <div class="control-item">
-                <label>模版内容</label>
-                <input type="text" id="textContent" value="在这里输入标题">
+                <label style="color:var(--accent)">导入本地字体 (.ttf, .otf)</label>
+                <input type="file" id="fontUpload" accept=".ttf, .otf, .woff, .woff2">
             </div>
-            <div class="control-item">
-                <label>字体选择</label>
-                <select id="fontFamily">
-                    <option value="system-ui">系统默认 (Sans-serif)</option>
-                    <option value="Georgia">衬线体 (Georgia)</option>
-                    <option value="Courier New">等宽体 (Courier)</option>
-                    <option value="'Microsoft YaHei'">微软雅黑</option>
-                </select>
-            </div>
-            <div class="control-item">
-                <label>字体大小</label>
-                <div class="slider-group">
-                    <input type="range" id="fontSize" min="20" max="200" value="80">
-                    <span class="val-display" id="fontSizeVal">80</span>
-                </div>
-            </div>
-            <div class="control-item">
-                <label>垂直位置 (Y)</label>
-                <div class="slider-group">
-                    <input type="range" id="textY" min="0" max="1600" value="1450">
-                </div>
-            </div>
-            <div class="control-item">
-                <label>水平偏移 (X)</label>
-                <div class="slider-group">
-                    <input type="range" id="textX" min="-450" max="450" value="0">
-                </div>
-            </div>
-            <button class="secondary" id="resetText">重置文字居中</button>
-        </div>
 
-        <button id="exportBtn" style="background: #1d1d1f; margin-top: 10px;">💾 保存高清海报</button>
+            <div class="sub-section">
+                <h3>主标题设置</h3>
+                <div class="control-item">
+                    <input type="text" id="mText" value="这里输入标题">
+                </div>
+                <div class="row-controls control-item">
+                    <div>
+                        <label>字体</label>
+                        <select id="mFont" class="font-select">
+                            <option value="system-ui">系统默认</option>
+                            <option value="'SimSun', 'STSong'">宋体</option>
+                            <option value="'SimHei', 'STHeiti'">黑体</option>
+                            <option value="'KaiTi', 'STKaiti'">楷体</option>
+                            <option value="'Microsoft YaHei'">微软雅黑</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>颜色</label>
+                        <input type="color" id="mColor" value="#ffffff">
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label>字号大小</label>
+                    <div class="slider-group">
+                        <input type="range" id="mSize" min="20" max="250" value="96">
+                        <span class="val-display" id="mSizeVal">96</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label>垂直位置 (Y)</label>
+                    <input type="range" id="mY" min="0" max="1600" value="1400" style="width:100%">
+                </div>
+                <div class="control-item">
+                    <label>水平偏移 (X)</label>
+                    <input type="range" id="mX" min="-450" max="450" value="0" style="width:100%">
+                </div>
+                <button class="small" id="mCenterBtn">一键居中</button>
+            </div>
+
+            <div class="sub-section">
+                <h3>副标题设置</h3>
+                <div class="control-item">
+                    <input type="text" id="sText" value="这里输入标题">
+                </div>
+                <div class="row-controls control-item">
+                    <div>
+                        <label>字体</label>
+                        <select id="sFont" class="font-select">
+                            <option value="system-ui">系统默认</option>
+                            <option value="'SimSun', 'STSong'">宋体</option>
+                            <option value="'SimHei', 'STHeiti'">黑体</option>
+                            <option value="'KaiTi', 'STKaiti'">楷体</option>
+                            <option value="'Microsoft YaHei'">微软雅黑</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>颜色</label>
+                        <input type="color" id="sColor" value="#cccccc">
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label>字号大小</label>
+                    <div class="slider-group">
+                        <input type="range" id="sSize" min="10" max="150" value="36">
+                        <span class="val-display" id="sSizeVal">36</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label>垂直位置 (Y)</label>
+                    <input type="range" id="sY" min="0" max="1600" value="1280" style="width:100%">
+                </div>
+                <div class="control-item">
+                    <label>水平偏移 (X)</label>
+                    <input type="range" id="sX" min="-450" max="450" value="0" style="width:100%">
+                </div>
+                <button class="small" id="sCenterBtn">一键居中</button>
+            </div>
+        </div>
     </div>
 
     <div class="workspace">
@@ -189,10 +274,8 @@
         const ctx = canvas.getContext('2d');
         const sourceVideo = document.getElementById('sourceVideo');
         
-        // 状态变量
         let capturedFrame = null;
 
-        // 初始化预览
         function init() {
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0,0,900,1600);
@@ -205,116 +288,121 @@
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, 900, 1600);
 
-            // 1. 绘制视频帧
+            // 1. 绘制视频帧 (加入了手动 X/Y 平移逻辑)
             if (capturedFrame) {
                 const scale = parseFloat(document.getElementById('vScale').value);
+                const vX = parseInt(document.getElementById('vX').value);
+                const vY = parseInt(document.getElementById('vY').value);
                 const w = capturedFrame.width;
                 const h = capturedFrame.height;
                 
-                // 居中计算
                 const ratio = Math.max(900/w, 1600/h) * scale;
                 const drawW = w * ratio;
                 const drawH = h * ratio;
-                const x = (900 - drawW) / 2;
-                const y = (1600 - drawH) / 2;
+                
+                // 默认居中位置 + 用户的自定义偏移量
+                const x = (900 - drawW) / 2 + vX;
+                const y = (1600 - drawH) / 2 + vY;
                 
                 ctx.drawImage(capturedFrame, x, y, drawW, drawH);
             }
 
-            // 2. 绘制文字 (居中与自定义控制逻辑)
-            const text = document.getElementById('textContent').value;
-            const size = document.getElementById('fontSize').value;
-            const family = document.getElementById('fontFamily').value;
-            const xOffset = parseInt(document.getElementById('textX').value);
-            const yPos = parseInt(document.getElementById('textY').value);
+            // 绘制文字的通用函数
+            function drawText(textId, fontId, sizeId, colorId, xId, yId, isBold) {
+                const text = document.getElementById(textId).value;
+                const font = document.getElementById(fontId).value;
+                const size = document.getElementById(sizeId).value;
+                const color = document.getElementById(colorId).value;
+                const xOffset = parseInt(document.getElementById(xId).value);
+                const yPos = parseInt(document.getElementById(yId).value);
 
-            ctx.save();
-            ctx.font = `bold ${size}px ${family}`;
-            ctx.fillStyle = "white";
-            ctx.textAlign = "center"; 
+                if(!text) return;
+
+                ctx.save();
+                const fontWeight = isBold ? "bold" : "normal";
+                ctx.font = `${fontWeight} ${size}px ${font}`;
+                ctx.fillStyle = color;
+                ctx.textAlign = "center"; 
+                
+                ctx.shadowColor = "rgba(0,0,0,0.6)";
+                ctx.shadowBlur = 12;
+                
+                ctx.fillText(text, 450 + xOffset, yPos);
+                ctx.restore();
+            }
+
+            // 2. 绘制副标题 (先画底层)
+            drawText('sText', 'sFont', 'sSize', 'sColor', 'sX', 'sY', false);
             
-            // 为了在白色背景下也能看清文字，增加一点文字阴影
-            ctx.shadowColor = "rgba(0,0,0,0.6)";
-            ctx.shadowBlur = 12;
-            
-            // 绘制位置 = 画布中心(450) + 用户偏移X, 用户指定Y
-            ctx.fillText(text, 450 + xOffset, yPos);
-            ctx.restore();
+            // 3. 绘制主标题 (后画顶层)
+            drawText('mText', 'mFont', 'mSize', 'mColor', 'mX', 'mY', true);
         }
 
         // --- 事件监听区 ---
 
-        // 视频上传
-        document.getElementById('videoUpload').addEventListener('change', e => {
+        // 本地字体上传与加载
+        document.getElementById('fontUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if(file) {
-                sourceVideo.src = URL.createObjectURL(file);
+            if (!file) return;
+
+            try {
+                const buffer = await file.arrayBuffer();
+                const customFontName = 'CustomFont_' + Date.now();
+                const customFont = new FontFace(customFontName, buffer);
+                const loadedFont = await customFont.load();
+                document.fonts.add(loadedFont);
+
+                const fontSelects = document.querySelectorAll('.font-select');
+                fontSelects.forEach(select => {
+                    const option = document.createElement('option');
+                    option.value = `'${customFontName}'`;
+                    option.text = `📌自定义: ${file.name.split('.')[0]}`;
+                    select.appendChild(option);
+                    select.value = option.value;
+                });
+                
+                alert(`字体 [${file.name}] 导入成功！`);
+                render();
+            } catch (err) {
+                console.error(err);
+                alert("字体解析失败，请确保上传的是有效的字体文件 (.ttf/.otf/.woff)");
             }
         });
 
-        // 视频微调控制
+        // 视频控制与抽帧
+        document.getElementById('videoUpload').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if(file) sourceVideo.src = URL.createObjectURL(file);
+        });
+
         document.getElementById('stepBack').addEventListener('click', () => {
-            if(sourceVideo.readyState > 0) {
-                sourceVideo.currentTime = Math.max(0, sourceVideo.currentTime - 0.05);
-            }
+            if(sourceVideo.readyState > 0) sourceVideo.currentTime = Math.max(0, sourceVideo.currentTime - 0.05);
         });
 
         document.getElementById('stepForward').addEventListener('click', () => {
-            if(sourceVideo.readyState > 0) {
-                sourceVideo.currentTime = Math.min(sourceVideo.duration, sourceVideo.currentTime + 0.05);
-            }
+            if(sourceVideo.readyState > 0) sourceVideo.currentTime = Math.min(sourceVideo.duration, sourceVideo.currentTime + 0.05);
         });
 
-        // 截取视频帧
         document.getElementById('captureBtn').addEventListener('click', () => {
-            if (!sourceVideo.src) {
-                alert("请先上传视频！");
-                return;
-            }
+            if (!sourceVideo.src) { alert("请先上传视频！"); return; }
             const offScreen = document.createElement('canvas');
             offScreen.width = sourceVideo.videoWidth;
             offScreen.height = sourceVideo.videoHeight;
             offScreen.getContext('2d').drawImage(sourceVideo, 0, 0);
             
             const img = new Image();
-            img.src = offScreen.toDataURL('image/png'); // 使用 PNG 保证原图质量
-            img.onload = () => { 
-                capturedFrame = img; 
-                render(); 
-            };
+            img.src = offScreen.toDataURL('image/png'); 
+            img.onload = () => { capturedFrame = img; render(); };
         });
 
-        // 仅下载截取的原图
         document.getElementById('downloadFrameBtn').addEventListener('click', () => {
-            if (!capturedFrame) {
-                alert("请先点击上方按钮截取视频帧！");
-                return;
-            }
+            if (!capturedFrame) { alert("请先截取视频帧！"); return; }
             const link = document.createElement('a');
-            link.download = `哪吒画布_原帧快照_${new Date().getTime()}.png`;
-            link.href = capturedFrame.src; // 直接下载缓存中的原比例截图
+            link.download = `哪吒画布_快照_${new Date().getTime()}.png`;
+            link.href = capturedFrame.src; 
             link.click();
         });
 
-        // 交互滑块联动
-        const inputs = ['vScale', 'textContent', 'fontFamily', 'fontSize', 'textY', 'textX'];
-        inputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
-                if(document.getElementById(id+'Val')) {
-                    document.getElementById(id+'Val').innerText = document.getElementById(id).value;
-                }
-                render();
-            });
-        });
-
-        // 重置文字
-        document.getElementById('resetText').addEventListener('click', () => {
-            document.getElementById('textX').value = 0;
-            document.getElementById('textY').value = 1450; 
-            render();
-        });
-
-        // 导出最终海报
         document.getElementById('exportBtn').addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = `哪吒画布_合成海报_${new Date().getTime()}.jpg`;
@@ -322,7 +410,46 @@
             link.click();
         });
 
-        // 初始化
+        // 画面位置重置按钮
+        document.getElementById('vCenterBtn').addEventListener('click', () => {
+            document.getElementById('vScale').value = 1;
+            document.getElementById('vX').value = 0;
+            document.getElementById('vY').value = 0;
+            if(document.getElementById('vScaleVal')) document.getElementById('vScaleVal').innerText = '1.0';
+            render();
+        });
+
+        // 动态监听所有的输入组件（包括新增的 vX, vY）
+        const inputs = [
+            'vScale', 'vX', 'vY',
+            'mText', 'mFont', 'mSize', 'mColor', 'mX', 'mY',
+            'sText', 'sFont', 'sSize', 'sColor', 'sX', 'sY'
+        ];
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', () => {
+                    if(document.getElementById(id+'Val')) {
+                        document.getElementById(id+'Val').innerText = el.value;
+                    }
+                    render();
+                });
+            }
+        });
+
+        // 文字一键居中逻辑
+        document.getElementById('mCenterBtn').addEventListener('click', () => {
+            document.getElementById('mX').value = 0;
+            document.getElementById('mY').value = 1400; 
+            render();
+        });
+
+        document.getElementById('sCenterBtn').addEventListener('click', () => {
+            document.getElementById('sX').value = 0;
+            document.getElementById('sY').value = 1280; 
+            render();
+        });
+
         init();
     </script>
 </body>
